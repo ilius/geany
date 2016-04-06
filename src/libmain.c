@@ -211,7 +211,8 @@ static void apply_settings(void)
 	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(main_widgets.sidebar_notebook), interface_prefs.tab_pos_sidebar);
 
 	/* whether to show notebook tabs or not */
-	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(main_widgets.notebook), interface_prefs.show_notebook_tabs);
+	ui_notebook_tabs_showhide(interface_prefs.show_notebook_tabs, TRUE);
+
 
 #ifdef HAVE_VTE
 	if (! vte_info.have_vte)

@@ -7434,6 +7434,16 @@
                           </object>
                         </child>
                         <child>
+                          <object class="GtkCheckMenuItem" id="menu_show_notebook_tabs1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Show Editor Tabs</property>
+                            <property name="use_underline">True</property>
+                            <property name="active">True</property>
+                            <signal name="toggled" handler="on_menu_show_notebook_tabs1_toggled" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkCheckMenuItem" id="menu_show_sidebar1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>

@@ -3633,6 +3633,8 @@ Fullscreen                      F11  (C)                  Switches to fullscreen
 Toggle Messages Window                                    Toggles the message window (status and compiler
                                                           messages) on and off.
 
+Toggle Editor Tabs                                        Shows or hides editor tabs.
+
 Toggle Sidebar                                            Shows or hides the sidebar.
 
 Toggle Statusbar                                          Shows or hides the statusbar.

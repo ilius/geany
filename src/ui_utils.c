@@ -2040,6 +2040,29 @@ static void ui_path_box_open_clicked(GtkButton *button, gpointer user_data)
 	}
 }
 
+void ui_notebook_tabs_showhide(gboolean state, gboolean update_menu)
+{
+	GtkWidget *widget;
+	/* handle statusbar visibility */
+	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(main_widgets.notebook), state);
+
+	if (update_menu) {
+		widget = ui_lookup_widget(main_widgets.window, "menu_show_notebook_tabs1");
+		if (state != gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
+		{
+			ignore_callback = TRUE;
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(widget), state);
+			ignore_callback = FALSE;
+		}
+	}
+}
+
+void ui_notebook_tabs_toggle(gboolean update_menu)
+{
+	interface_prefs.show_notebook_tabs = ! interface_prefs.show_notebook_tabs;
+	ui_notebook_tabs_showhide(interface_prefs.show_notebook_tabs, update_menu);
+}
+
 void ui_statusbar_showhide(gboolean state, gboolean update_menu)
 {
 	GtkWidget *widget;
