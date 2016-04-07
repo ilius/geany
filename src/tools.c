@@ -685,7 +685,7 @@ void tools_word_count(void)
 {
 	GtkWidget *dialog, *label, *vbox, *table;
 	GeanyDocument *doc;
-	guint chars = 0, lines = 0, words = 0;
+	guint bytes = 0, chars = 0, lines = 0, words = 0;
 	gchar *text;
 	const gchar *range;
 
@@ -709,9 +709,11 @@ void tools_word_count(void)
 		range = _("whole document");
 	}
 	word_count(text, &chars, &lines, &words);
+	// chars == g_utf8_strlen(text, -1)
+	bytes = strlen(text);
 	g_free(text);
 
-	table = gtk_table_new(4, 2, FALSE);
+	table = gtk_table_new(5, 2, FALSE);
 	gtk_table_set_row_spacings(GTK_TABLE(table), 5);
 	gtk_table_set_col_spacings(GTK_TABLE(table), 10);
 
@@ -764,6 +766,20 @@ void tools_word_count(void)
 	text = g_strdup_printf("%d", chars);
 	label = gtk_label_new(text);
 	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 3, 4,
+					(GtkAttachOptions) (GTK_FILL),
+					(GtkAttachOptions) (0), 20, 0);
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	g_free(text);
+
+	label = gtk_label_new(_("Bytes:"));
+	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 4, 5,
+					(GtkAttachOptions) (GTK_FILL),
+					(GtkAttachOptions) (0), 0, 0);
+	gtk_misc_set_alignment(GTK_MISC(label), 1, 0);
+
+	text = g_strdup_printf("%d", bytes);
+	label = gtk_label_new(text);
+	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 4, 5,
 					(GtkAttachOptions) (GTK_FILL),
 					(GtkAttachOptions) (0), 20, 0);
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
