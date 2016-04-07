@@ -345,6 +345,8 @@ void ui_notebook_tabs_showhide(gboolean state, gboolean update_menu);
 
 void ui_notebook_tabs_toggle(gboolean update_menu);
 
+void ui_line_numbers_toggle(gboolean update_menu);
+
 void ui_statusbar_showhide(gboolean state, gboolean update_menu);
 
 void ui_statusbar_toggle(gboolean update_menu);

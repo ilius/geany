@@ -275,6 +275,7 @@ enum GeanyKeyBindingID
 	GEANY_KEYS_FORMAT_SENDTOCMD9,				/**< Keybinding. */
 	GEANY_KEYS_VIEW_STATUSBAR,					/**< Keybinding. */
 	GEANY_KEYS_VIEW_NOTEBOOK_TABS,				/**< Keybinding. */
+	GEANY_KEYS_VIEW_LINE_NUMBERS,				/**< Keybinding. */
 	GEANY_KEYS_COUNT	/* must not be used by plugins */
 };
 

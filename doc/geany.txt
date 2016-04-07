@@ -3628,6 +3628,7 @@ View keybindings
 =============================== ========================= ==================================================
 Action                          Default shortcut          Description
 =============================== ========================= ==================================================
+Toggle Line Numbers                                       Shows or hides line numbers (editor's left margin)
 Fullscreen                      F11  (C)                  Switches to fullscreen mode.
 
 Toggle Messages Window                                    Toggles the message window (status and compiler
