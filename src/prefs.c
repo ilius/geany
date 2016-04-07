@@ -79,6 +79,7 @@ KbData;
 static KbData global_kb_data = { NULL, NULL, FALSE };
 static GtkTreeView *various_treeview = NULL;
 
+static GeanyKeyBinding *kb_get_from_iter(GtkTreeStore *store, GtkTreeIter *iter);
 static GeanyKeyBinding *kb_index(guint gidx, guint kid);
 static void kb_cell_edited_cb(GtkCellRendererText *cellrenderertext, gchar *path, gchar *new_text, KbData *kbdata);
 static gboolean kb_grab_key_dialog_key_press_cb(GtkWidget *dialog, GdkEventKey *event, GtkLabel *label);
@@ -210,6 +211,29 @@ static void kb_tree_view_change_button_clicked_cb(GtkWidget *button, KbData *kbd
 	}
 }
 
+static void kb_tree_view_default_button_clicked_cb(GtkWidget *button, KbData *kbdata)
+{
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	GtkTreeSelection *selection;
+	gchar *name;
+
+	selection = gtk_tree_view_get_selection(kbdata->tree);
+
+	if (!gtk_tree_selection_get_selected(selection, &model, &iter)){ return; }
+
+	gtk_tree_model_get(model, &iter, KB_TREE_ACTION, &name, -1);
+
+	if (name == NULL){ return; }
+
+	GeanyKeyBinding *kb = kb_get_from_iter(kbdata->store, &iter);
+
+	gchar *key_string = gtk_accelerator_name(kb->default_key, kb->default_mods);
+
+	kb_change_iter_shortcut(kbdata, &iter, key_string);
+}
+
+
 
 static void kb_show_popup_menu(KbData *kbdata, GtkWidget *widget, GdkEventButton *event)
 {
@@ -308,25 +332,35 @@ static void kb_init_tree(KbData *kbdata)
 	g_signal_connect(kbdata->tree, "popup-menu", G_CALLBACK(kb_popup_menu_cb), kbdata);
 	g_signal_connect(ui_lookup_widget(ui_widgets.prefs_dialog, "button2"), "clicked",
 				G_CALLBACK(kb_tree_view_change_button_clicked_cb), kbdata);
+	g_signal_connect(ui_lookup_widget(ui_widgets.prefs_dialog, "button_keybinding_default"), "clicked",
+				G_CALLBACK(kb_tree_view_default_button_clicked_cb), kbdata);
+
 }
 
+
+static GeanyKeyBinding *kb_get_from_iter(GtkTreeStore *store, GtkTreeIter *iter)
+{
+	GtkTreeIter parent;
+	guint kid, gid;
+
+	gtk_tree_model_get(GTK_TREE_MODEL(store), iter, KB_TREE_INDEX, &kid, -1);
+	gtk_tree_model_iter_parent(GTK_TREE_MODEL(store), &parent, iter);
+	gtk_tree_model_get(GTK_TREE_MODEL(store), &parent, KB_TREE_INDEX, &gid, -1);
+	return kb_index(gid, kid);
+}
 
 static void kb_set_shortcut(GtkTreeStore *store, GtkTreeIter *iter,
 		guint key, GdkModifierType mods)
 {
 	gchar *key_string = gtk_accelerator_name(key, mods);
-	GtkTreeIter parent;
-	guint kid, gid;
 	GeanyKeyBinding *kb;
 	gboolean bold;
 
 	gtk_tree_store_set(store, iter, KB_TREE_SHORTCUT, key_string, -1);
 	g_free(key_string);
 
-	gtk_tree_model_get(GTK_TREE_MODEL(store), iter, KB_TREE_INDEX, &kid, -1);
-	gtk_tree_model_iter_parent(GTK_TREE_MODEL(store), &parent, iter);
-	gtk_tree_model_get(GTK_TREE_MODEL(store), &parent, KB_TREE_INDEX, &gid, -1);
-	kb = kb_index(gid, kid);
+	kb = kb_get_from_iter(store, iter);
+
 	bold = key != kb->default_key || mods != kb->default_mods;
 	gtk_tree_store_set(store, iter, KB_TREE_WEIGHT,
 		bold ? PANGO_WEIGHT_BOLD : PANGO_WEIGHT_NORMAL, -1);
