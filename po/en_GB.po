@@ -1047,7 +1047,7 @@ msgstr "Colour:"
 msgid "Sets the color of the long line marker"
 msgstr "Sets the colour of the long line marker"
 
-#: ../data/geany.glade.h:216 ../src/toolbar.c:74 ../src/tools.c:831
+#: ../data/geany.glade.h:216 ../src/toolbar.c:74 ../src/tools.c:847
 msgid "Color Chooser"
 msgstr "Colour Chooser"
 
@@ -5186,21 +5186,26 @@ msgstr "selection"
 msgid "whole document"
 msgstr "whole document"
 
-#: ../src/tools.c:718
+#: ../src/tools.c:720
 msgid "Range:"
 msgstr "Range:"
 
-#: ../src/tools.c:730
+#: ../src/tools.c:732
 msgid "Lines:"
 msgstr "Lines:"
 
-#: ../src/tools.c:744
+#: ../src/tools.c:746
 msgid "Words:"
 msgstr "Words:"
 
-#: ../src/tools.c:758
+#: ../src/tools.c:760
 msgid "Characters:"
 msgstr "Characters:"
+
+#: ../src/tools.c:774
+msgid "Bytes:"
+msgstr "Bytes:"
+
 
 #: ../src/sidebar.c:178
 #, fuzzy
