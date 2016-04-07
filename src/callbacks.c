@@ -647,8 +647,7 @@ static void on_show_line_numbers1_toggled(GtkCheckMenuItem *checkmenuitem, gpoin
 	if (ignore_callback)
 		return;
 
-	editor_prefs.show_linenumber_margin = ! editor_prefs.show_linenumber_margin;
-	ui_toggle_editor_features(GEANY_EDITOR_SHOW_LINE_NUMBERS);
+	ui_line_numbers_toggle(FALSE);
 }
 
 

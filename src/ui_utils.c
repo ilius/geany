@@ -2038,6 +2038,23 @@ static void ui_path_box_open_clicked(GtkButton *button, gpointer user_data)
 	}
 }
 
+
+void ui_line_numbers_toggle(gboolean update_menu)
+{
+    editor_prefs.show_linenumber_margin = ! editor_prefs.show_linenumber_margin;
+	ui_toggle_editor_features(GEANY_EDITOR_SHOW_LINE_NUMBERS);
+
+    if (update_menu) {
+    	GtkWidget *widget = ui_lookup_widget(main_widgets.window, "menu_linenumber_margin1");
+	    if (editor_prefs.show_linenumber_margin != gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
+	    {
+		    ignore_callback = TRUE;
+		    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(widget), editor_prefs.show_linenumber_margin);
+		    ignore_callback = FALSE;
+	    }
+    }
+}
+
 void ui_statusbar_showhide(gboolean state, gboolean update_menu)
 {
 	GtkWidget *widget;
