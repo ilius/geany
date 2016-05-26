@@ -591,6 +591,8 @@ static void init_default_kb(void)
 
 	group = keybindings_get_core_group(GEANY_KEY_GROUP_VIEW);
 
+	add_kb(group, GEANY_KEYS_VIEW_LINE_NUMBERS, NULL,
+		0, 0, "toggle_line_numbers", _("Toggle Line Numbers"), "menu_linenumber_margin1");
 	add_kb(group, GEANY_KEYS_VIEW_TOGGLEALL, NULL,
 		0, 0, "menu_toggleall", _("Toggle All Additional Widgets"),
 		"menu_toggle_all_additional_widgets1");
@@ -1586,6 +1588,9 @@ static gboolean cb_func_view_action(guint key_id)
 {
 	switch (key_id)
 	{
+		case GEANY_KEYS_VIEW_LINE_NUMBERS:
+			ui_line_numbers_toggle(TRUE);
+			break;
 		case GEANY_KEYS_VIEW_TOGGLEALL:
 			on_menu_toggle_all_additional_widgets1_activate(NULL, NULL);
 			break;
