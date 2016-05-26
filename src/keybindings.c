@@ -599,6 +599,8 @@ static void init_default_kb(void)
 	add_kb(group, GEANY_KEYS_VIEW_MESSAGEWINDOW, cb_func_menu_messagewindow,
 		0, 0, "menu_messagewindow", _("Toggle Messages Window"),
 		"menu_show_messages_window1");
+	add_kb(group, GEANY_KEYS_VIEW_NOTEBOOK_TABS, NULL,
+		0, 0, "toggle_notebook_tabs", _("Toggle Editor Tabs"), "menu_show_notebook_tabs1");
 	add_kb(group, GEANY_KEYS_VIEW_SIDEBAR, NULL,
 		0, 0, "toggle_sidebar", _("Toggle Sidebar"), "menu_show_sidebar1");
 	add_kb(group, GEANY_KEYS_VIEW_STATUSBAR, NULL,
@@ -1589,6 +1591,9 @@ static gboolean cb_func_view_action(guint key_id)
 			break;
 		case GEANY_KEYS_VIEW_SIDEBAR:
 			on_menu_show_sidebar1_toggled(NULL, NULL);
+			break;
+		case GEANY_KEYS_VIEW_NOTEBOOK_TABS:
+			ui_notebook_tabs_toggle(TRUE);
 			break;
 		case GEANY_KEYS_VIEW_STATUSBAR:
 			ui_statusbar_toggle(TRUE);
