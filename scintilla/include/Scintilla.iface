@@ -2331,6 +2331,7 @@ enu VirtualSpace=SCVS_
 val SCVS_NONE=0
 val SCVS_RECTANGULARSELECTION=1
 val SCVS_USERACCESSIBLE=2
+val SCVS_NOWRAPLINESTART=4
 
 set void SetVirtualSpaceOptions=2596(int virtualSpaceOptions,)
 get int GetVirtualSpaceOptions=2597(,)
@@ -4729,7 +4730,7 @@ evt void FocusIn=2028(void)
 evt void FocusOut=2029(void)
 evt void AutoCCompleted=2030(string text, int position, int ch, CompletionMethods listCompletionMethod)
 
-# There are no provisional features currently
+# There are no provisional APIs currently, but some arguments to SCI_SETTECHNOLOGY are provisional.
 
 cat Provisional
 

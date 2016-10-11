@@ -195,7 +195,6 @@ static void on_snippet_keybinding_activate(gchar *key)
 {
 	GeanyDocument *doc = document_get_current();
 	const gchar *s;
-	GHashTable *specials;
 
 	if (!doc || !gtk_widget_has_focus(GTK_WIDGET(doc->editor->sci)))
 		return;
@@ -203,7 +202,8 @@ static void on_snippet_keybinding_activate(gchar *key)
 	s = snippets_find_completion_by_name(doc->file_type->name, key);
 	if (!s) /* allow user to specify keybindings for "special" snippets */
 	{
-		specials = g_hash_table_lookup(snippet_hash, "Special");
+		GHashTable *specials = g_hash_table_lookup(snippet_hash, "Special");
+
 		if (G_LIKELY(specials != NULL))
 			s = g_hash_table_lookup(specials, key);
 	}
@@ -1616,7 +1616,7 @@ static void close_block(GeanyEditor *editor, gint pos)
 	const GeanyIndentPrefs *iprefs = editor_get_indent_prefs(editor);
 	gint x = 0, cnt = 0;
 	gint line, line_len;
-	gchar *text, *line_buf;
+	gchar *line_buf;
 	ScintillaObject *sci;
 	gint line_indent, last_indent;
 
@@ -1656,8 +1656,8 @@ static void close_block(GeanyEditor *editor, gint pos)
 			gint brace_line = sci_get_line_from_position(sci, start_brace);
 			gint size = sci_get_line_indentation(sci, brace_line);
 			gchar *ind = get_whitespace(iprefs, size);
+			gchar *text = g_strconcat(ind, "}", NULL);
 
-			text = g_strconcat(ind, "}", NULL);
 			line_start = sci_get_position_from_line(sci, line);
 			sci_set_anchor(sci, line_start);
 			sci_replace_sel(sci, text);
@@ -4382,16 +4382,12 @@ void editor_fold_all(GeanyEditor *editor)
 
 void editor_replace_tabs(GeanyEditor *editor, gboolean ignore_selection)
 {
-	gint search_pos, pos_in_line, current_tab_true_length;
 	gint anchor_pos, caret_pos;
-	gint tab_len;
-	gchar *tab_str;
 	struct Sci_TextToFind ttf;
 
 	g_return_if_fail(editor != NULL);
 
 	sci_start_undo_action(editor->sci);
-	tab_len = sci_get_tab_width(editor->sci);
 	if (sci_has_selection(editor->sci) && !ignore_selection)
 	{
 		ttf.chrg.cpMin = sci_get_selection_start(editor->sci);
@@ -4408,10 +4404,15 @@ void editor_replace_tabs(GeanyEditor *editor, gboolean ignore_selection)
 	caret_pos = sci_get_current_position(editor->sci);
 	while (TRUE)
 	{
+		gint search_pos, pos_in_line, current_tab_true_length;
+		gint tab_len;
+		gchar *tab_str;
+
 		search_pos = sci_find_text(editor->sci, SCFIND_MATCHCASE, &ttf);
 		if (search_pos == -1)
 			break;
 
+		tab_len = sci_get_tab_width(editor->sci);
 		pos_in_line = sci_get_col_from_position(editor->sci, search_pos);
 		current_tab_true_length = tab_len - (pos_in_line % tab_len);
 		tab_str = g_strnfill(current_tab_true_length, ' ');
@@ -4760,28 +4761,12 @@ static gboolean editor_check_colourise(GeanyEditor *editor)
 		return FALSE;
 
 	doc->priv->colourise_needed = FALSE;
+	sci_colourise(editor->sci, 0, -1);
 
-	if (doc->priv->full_colourise)
-	{
-		sci_colourise(editor->sci, 0, -1);
-
-		/* now that the current document is colourised, fold points are now accurate,
-		 * so force an update of the current function/tag. */
-		symbols_get_current_function(NULL, NULL);
-		ui_update_statusbar(NULL, -1);
-	}
-	else
-	{
-		gint start_line, end_line, start, end;
-
-		start_line = SSM(doc->editor->sci, SCI_GETFIRSTVISIBLELINE, 0, 0);
-		end_line = start_line + SSM(editor->sci, SCI_LINESONSCREEN, 0, 0);
-		start_line = SSM(editor->sci, SCI_DOCLINEFROMVISIBLE, start_line, 0);
-		end_line = SSM(editor->sci, SCI_DOCLINEFROMVISIBLE, end_line, 0);
-		start = sci_get_position_from_line(editor->sci, start_line);
-		end = sci_get_line_end_position(editor->sci, end_line);
-		sci_colourise(editor->sci, start, end);
-	}
+	/* now that the current document is colourised, fold points are now accurate,
+	 * so force an update of the current function/tag. */
+	symbols_get_current_function(NULL, NULL);
+	ui_update_statusbar(NULL, -1);
 
 	return TRUE;
 }
@@ -4830,6 +4815,7 @@ static void setup_sci_keys(ScintillaObject *sci)
 	sci_clear_cmdkey(sci, 'L' | (SCMOD_CTRL << 16)); /* line cut */
 	sci_clear_cmdkey(sci, 'L' | (SCMOD_CTRL << 16) | (SCMOD_SHIFT << 16)); /* line delete */
 	sci_clear_cmdkey(sci, SCK_DELETE | (SCMOD_CTRL << 16) | (SCMOD_SHIFT << 16)); /* line to end delete */
+	sci_clear_cmdkey(sci, SCK_BACK | (SCMOD_CTRL << 16) | (SCMOD_SHIFT << 16)); /* line to beginning delete */
 	sci_clear_cmdkey(sci, '/' | (SCMOD_CTRL << 16)); /* Previous word part */
 	sci_clear_cmdkey(sci, '\\' | (SCMOD_CTRL << 16)); /* Next word part */
 	sci_clear_cmdkey(sci, SCK_UP | (SCMOD_CTRL << 16)); /* scroll line up */
@@ -4922,7 +4908,7 @@ static ScintillaObject *create_new_sci(GeanyEditor *editor)
 	sci_set_symbol_margin(sci, editor_prefs.show_markers_margin);
 	sci_set_lines_wrapped(sci, editor->line_wrapping);
 	sci_set_caret_policy_x(sci, CARET_JUMPS | CARET_EVEN, 0);
-	/*sci_set_caret_policy_y(sci, CARET_JUMPS | CARET_EVEN, 0);*/
+	/* Y policy is set in editor_apply_update_prefs() */
 	SSM(sci, SCI_AUTOCSETSEPARATOR, '\n', 0);
 	SSM(sci, SCI_SETSCROLLWIDTHTRACKING, 1, 0);
 
@@ -4937,8 +4923,11 @@ static ScintillaObject *create_new_sci(GeanyEditor *editor)
 	SSM(sci, SCI_SETVIRTUALSPACEOPTIONS, editor_prefs.show_virtual_space, 0);
 	
 #ifdef GDK_WINDOWING_QUARTZ
-	/* "retina" (HiDPI) display support on OS X - requires disabling buffered draw */
+# if ! GTK_CHECK_VERSION(3,16,0)
+	/* "retina" (HiDPI) display support on OS X - requires disabling buffered draw
+	 * on older GTK versions */
 	SSM(sci, SCI_SETBUFFEREDDRAW, 0, 0);
+# endif
 #endif
 
 	/* only connect signals if this is for the document notebook, not split window */
@@ -5145,6 +5134,7 @@ void editor_set_indentation_guides(GeanyEditor *editor)
 void editor_apply_update_prefs(GeanyEditor *editor)
 {
 	ScintillaObject *sci;
+	int caret_y_policy;
 
 	g_return_if_fail(editor != NULL);
 
@@ -5179,6 +5169,12 @@ void editor_apply_update_prefs(GeanyEditor *editor)
 
 	/* virtual space */
 	SSM(sci, SCI_SETVIRTUALSPACEOPTIONS, editor_prefs.show_virtual_space, 0);
+
+	/* caret Y policy */
+	caret_y_policy = CARET_EVEN;
+	if (editor_prefs.scroll_lines_around_cursor > 0)
+		caret_y_policy |= CARET_SLOP | CARET_STRICT;
+	sci_set_caret_policy_y(sci, caret_y_policy, editor_prefs.scroll_lines_around_cursor);
 
 	/* (dis)allow scrolling past end of document */
 	sci_set_scroll_stop_at_last_line(sci, editor_prefs.scroll_stop_at_last_line);
@@ -5322,3 +5318,15 @@ void editor_insert_snippet(GeanyEditor *editor, gint pos, const gchar *snippet)
 	editor_insert_text_block(editor, pattern->str, pos, -1, -1, TRUE);
 	g_string_free(pattern, TRUE);
 }
+
+static void        *copy_(void *src) { return src; }
+static void         free_(void *doc) { }
+
+/** @gironly
+ * Gets the GType of GeanyEditor
+ *
+ * @return the GeanyEditor type */
+GEANY_API_SYMBOL
+GType editor_get_type (void);
+
+G_DEFINE_BOXED_TYPE(GeanyEditor, editor, copy_, free_);

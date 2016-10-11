@@ -16,7 +16,7 @@
 #include <vector>
 #include <algorithm>
 
-#ifdef CXX11_REGEX
+#ifndef NO_CXX11_REGEX
 #include <regex>
 #endif
 
@@ -1823,7 +1823,7 @@ void Document::SetCharClasses(const unsigned char *chars, CharClassify::cc newCh
     charClass.SetCharClasses(chars, newCharClass);
 }
 
-int Document::GetCharsOfClass(CharClassify::cc characterClass, unsigned char *buffer) {
+int Document::GetCharsOfClass(CharClassify::cc characterClass, unsigned char *buffer) const {
     return charClass.GetCharsOfClass(characterClass, buffer);
 }
 
@@ -2336,7 +2336,7 @@ public:
 	}
 };
 
-#ifdef CXX11_REGEX
+#ifndef NO_CXX11_REGEX
 
 class ByteIterator : public std::iterator<std::bidirectional_iterator_tag, char> {
 public:
@@ -2696,7 +2696,7 @@ long BuiltinRegex::FindText(Document *doc, int minPos, int maxPos, const char *s
                         bool caseSensitive, bool, bool, int flags,
                         int *length) {
 
-#ifdef CXX11_REGEX
+#ifndef NO_CXX11_REGEX
 	if (flags & SCFIND_CXX11REGEX) {
 			return Cxx11RegexFindText(doc, minPos, maxPos, s,
 			caseSensitive, length, search);
