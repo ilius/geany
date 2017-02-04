@@ -1,4 +1,4 @@
-.. |(version)| replace:: 1.29
+.. |(version)| replace:: 1.30
 .. -*- reStructuredText -*-
 
 =======
@@ -14,7 +14,7 @@
           Frank Lanitz,
           Colomban Wendling,
           Matthew Brush
-:Date: 2016-07-10
+:Date: 2016-11-13
 :Version: |(version)|
 
 Copyright © 2005-2016
@@ -2554,9 +2554,6 @@ msgwin_messages_visible           Whether to show the Messages tab in the      t
 msgwin_scribble_visible           Whether to show the Scribble tab in the      true        immediately
                                   Messages Window
 **VTE related**
-emulation                         Terminal emulation mode. Only change this    xterm       immediately
-                                  if you have VTE termcap files other than
-                                  ``vte/termcap/xterm``.
 send_selection_unsafe             By default, Geany strips any trailing        false       immediately
                                   newline characters from the current
                                   selection before sending it to the terminal
@@ -4597,6 +4594,13 @@ calltips
     arguments set whether to use the defined colors.
 
     *Example:* ``calltips=0xc0c0c0;0xffffff;false;false``
+
+indicator_error
+    The color of the error indicator.
+
+    Only the first argument (foreground color) is used.
+
+    *Example:* ``indicator_error=0xff0000``
 
 
 [settings] section
