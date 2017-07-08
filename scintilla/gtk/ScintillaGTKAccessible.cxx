@@ -162,7 +162,9 @@ ScintillaGTKAccessible::ScintillaGTKAccessible(GtkAccessible *accessible_, GtkWi
 }
 
 ScintillaGTKAccessible::~ScintillaGTKAccessible() {
-	g_signal_handlers_disconnect_by_func (sci->sci, reinterpret_cast<gpointer>(SciNotify), this);
+	if (gtk_accessible_get_widget(accessible)) {
+		g_signal_handlers_disconnect_matched(sci->sci, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, this);
+	}
 }
 
 gchar *ScintillaGTKAccessible::GetTextRangeUTF8(Position startByte, Position endByte) {
@@ -854,6 +856,13 @@ void ScintillaGTKAccessible::NotifyReadOnly() {
 void ScintillaGTKAccessible::Notify(GtkWidget *, gint, SCNotification *nt) {
 	switch (nt->nmhdr.code) {
 		case SCN_MODIFIED: {
+			if (nt->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) {
+				// invalidate character offset cache if applicable
+				const Position line = sci->pdoc->LineFromPosition(nt->position);
+				if (character_offsets.size() > static_cast<size_t>(line + 1)) {
+					character_offsets.resize(line + 1);
+				}
+			}
 			if (nt->modificationType & SC_MOD_INSERTTEXT) {
 				int startChar = CharacterOffsetFromByteOffset(nt->position);
 				int lengthChar = sci->pdoc->CountCharacters(nt->position, nt->position + nt->length);
